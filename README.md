@@ -96,7 +96,6 @@ Use the following commands to download and compile the package.
   cd ~/ros2_ws/src
   git clone https://github.com/zeligerstav/NIST_SLAM.git
   cd NIST_SLAM
-  git checkout ros2
   cd ..
   colcon build
   ```
