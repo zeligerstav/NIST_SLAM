@@ -72,10 +72,14 @@ In these tests, the IMU was mounted on the bottom of the lidar such that their x
 Tested with ROS2 versions foxy and galactic on Ubuntu 20.04 and humble on Ubuntu 22.04
 - [ROS2](https://docs.ros.org/en/humble/Installation.html)
   ```
-  sudo apt install ros-<ros2-version>-perception-pcl \
-		   ros-<ros2-version>-pcl-msgs \
-		   ros-<ros2-version>-vision-opencv \
-		   ros-<ros2-version>-xacro
+  sudo apt install ros-humble-perception-pcl \
+		   ros-humble-pcl-msgs \
+		   ros-humble-vision-opencv \
+		   ros-humble-xacro \
+		   ros-humble-octomap \
+		   ros-humble-octomap-server \
+  		   ros-humble-octomap-rviz-plugins
+  		
   ```
 - [gtsam](https://gtsam.org/get_started) (Georgia Tech Smoothing and Mapping library)
   ```
@@ -90,55 +94,13 @@ Use the following commands to download and compile the package.
 
   ```
   cd ~/ros2_ws/src
-  git clone https://github.com/TixiaoShan/LIO-SAM.git
-  cd lio-sam
+  git clone https://github.com/zeligerstav/NIST_SLAM.git
+  cd NIST_SLAM
   git checkout ros2
   cd ..
   colcon build
   ```
 
-## Using Docker
-
-Build image (based on ROS2 Humble):
-
-```
-docker build -t liosam-humble-jammy .
-```
-
-Once you have the image, you can start a container by using one of the following methods:
-
-1. `docker run`
-
-```
-docker run --init -it -d \
-  --name liosam-humble-jammy-container \
-  -v /etc/localtime:/etc/localtime:ro \
-  -v /etc/timezone:/etc/timezone:ro \
-  -v /tmp/.X11-unix:/tmp/.X11-unix \
-  -e DISPLAY=$DISPLAY \
-  --runtime=nvidia --gpus all \
-  liosam-humble-jammy \
-  bash
-```
-
-2. `docker compose`
-
-Start a docker compose container:
-
-```
-docker compose up -d
-```
-
-Stopping a docker compose container:
-```
-docker compose down
-```
-
-To enter into the running container use:
-
-```
-docker exec -it liosam-humble-jammy-container bash
-```
 ## Prepare lidar data
 
 The user needs to prepare the point cloud data in the correct format for cloud deskewing, which is mainly done in "imageProjection.cpp". The two requirements are:
