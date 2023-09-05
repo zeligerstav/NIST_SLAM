@@ -93,6 +93,9 @@ Tested with ROS2 versions foxy and galactic on Ubuntu 20.04 and humble on Ubuntu
 Use the following commands to download and compile the package.
 
   ```
+  source /opt/ros/humble/setup.bash
+  mkdir ~/ros2_ws
+  mkdir ~/ros2_ws/src
   cd ~/ros2_ws/src
   git clone https://github.com/zeligerstav/NIST_SLAM.git
   cd NIST_SLAM
@@ -134,6 +137,8 @@ README.md of the master branch contains some links to ROS1 rosbags. It is possib
 
 1. Run the launch file:
 ```
+source ~/ros2_ws/src/install/local_setup.bash
+source /opt/ros/humble/setup.bash
 ros2 launch lio_sam run.launch.py
 ```
 
