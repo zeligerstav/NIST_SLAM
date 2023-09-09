@@ -264,11 +264,11 @@ public:
         timeScanEnd = timeScanCur + laserCloudIn->points.back().time;
 
         // check dense flag
-        if (laserCloudIn->is_dense == false)
-        {
-            RCLCPP_ERROR(get_logger(), "Point cloud is not in dense format, please remove NaN points first!");
-            rclcpp::shutdown();
-        }
+        // if (laserCloudIn->is_dense == false)
+        // {
+        //     RCLCPP_ERROR(get_logger(), "Point cloud is not in dense format, please remove NaN points first!");
+        //     rclcpp::shutdown();
+        // }
 
         // check ring channel
         static int ringFlag = 0;
@@ -590,8 +590,8 @@ public:
             if (rangeMat.at<float>(rowIdn, columnIdn) != FLT_MAX)
                 continue;
 
-            thisPoint = deskewPoint(&thisPoint, laserCloudIn->points[i].time);
-
+            // thisPoint = deskewPoint(&thisPoint, laserCloudIn->points[i].time);
+	    thisPoint = deskewPoint(&thisPoint, 0.0);
             rangeMat.at<float>(rowIdn, columnIdn) = range;
 
             int index = columnIdn + rowIdn * Horizon_SCAN;
