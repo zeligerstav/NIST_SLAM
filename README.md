@@ -135,12 +135,12 @@ README.md of the master branch contains some links to ROS1 rosbags. It is possib
 
 ## Run the package
 
-# Install tool to convert rosbags to ros2 bags (https://gitlab.com/ternaris/rosbags)
+### Install tool to convert rosbags to ros2 bags (https://gitlab.com/ternaris/rosbags)
 ```
 pip install rosbags
 ```
 
-# Convert rosbag to ros2 bag
+### Convert rosbag to ros2 bag
 ```
 rosbags-convert name_of_bag.bag
 ```
