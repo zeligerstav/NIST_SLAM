@@ -88,20 +88,52 @@ Tested with ROS2 versions foxy and galactic on Ubuntu 20.04 and humble on Ubuntu
   sudo apt install libgtsam-dev libgtsam-unstable-dev
   ```
 
-## Install
+## Install Dependencies
 
-Use the following commands to download and compile the package.
+These dependencies are required to build the ros-gz bridge package
+```
+sudo apt install -y cowsay fortune-mod python3-rosdep
+echo "fortune -s | cowsay" >> ~/.bashrc
+echo "export px4tg=~/PX4-Autopilot/build/px4_sitl_default/bin/px4" >> ~/.bashrc
+```
+
+Gazebo should already be installed on Ubuntu 22.04. If it isn't, follow the directions here:
+https://docs.px4.io/main/en/sim_gazebo_gz/
+
+Install the PX4 Toolchain
+```
+cd
+git clone https://github.com/PX4/PX4-Autopilot.git --recursive
+sudo bash ./PX4-Autopilot/Tools/setup/ubuntu.sh
+```
+
+## Install Package
+
+Use the following commands to download and compile the package. This assumes you already have a ros2_ws
 
   ```
   source /opt/ros/humble/setup.bash
-  mkdir ~/ros2_ws
-  mkdir ~/ros2_ws/src
   cd ~/ros2_ws/src
   git clone https://github.com/zeligerstav/NIST_SLAM.git
-  cd NIST_SLAM
+  git clone https://github.com/gazebosim/ros_gz.git -b humble
+  export GZ_VERSION=garden
   cd ..
+  rosdep install -r --from-paths src -i -y --rosdistro humble
   colcon build
   ```
+
+## Configure our custom model
+```
+cp -R ~/ros2_ws/src/nist ~/PX4-Autopilot/Tools/simulation/gz/models/
+```
+
+## Running the Simulation
+In order to use the PX4-Autopilot toolchain, you will need to reboot your machine
+
+Then,
+```
+PX4_SYS_AUTOSTART=4001 PX4_GZ_MODEL=nist PX4_GZ_MODEL_POSE=0,0,2,0,0,0 ${px4tg}
+```
 
 ## Prepare lidar data
 
