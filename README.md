@@ -103,16 +103,6 @@ Use the following commands to download and compile the package.
   colcon build
   ```
 
-## Install tool to convert rosbags to ros2 bags (https://gitlab.com/ternaris/rosbags)
-```
-pip install rosbags
-```
-
-## Convert rosbag to ros2 bag
-```
-rosbags-convert name_of_bag.bag
-```
-
 ## Prepare lidar data
 
 The user needs to prepare the point cloud data in the correct format for cloud deskewing, which is mainly done in "imageProjection.cpp". The two requirements are:
@@ -144,6 +134,16 @@ For privacy reasons, no data set can currently be made available for ROS2.
 README.md of the master branch contains some links to ROS1 rosbags. It is possible to use [ros1_bridge](https://github.com/ros2/ros1_bridge) with these rosbags, but verify timing behavior (message frequency in ROS2) first. Mind [DDS tuning](https://docs.ros.org/en/humble/How-To-Guides/DDS-tuning.html).
 
 ## Run the package
+
+# Install tool to convert rosbags to ros2 bags (https://gitlab.com/ternaris/rosbags)
+```
+pip install rosbags
+```
+
+# Convert rosbag to ros2 bag
+```
+rosbags-convert name_of_bag.bag
+```
 
 1. Run the launch file:
 ```
