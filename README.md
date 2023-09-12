@@ -103,6 +103,16 @@ Use the following commands to download and compile the package.
   colcon build
   ```
 
+## Install tool to convert rosbags to ros2 bags (https://gitlab.com/ternaris/rosbags)
+```
+pip install rosbags
+```
+
+## Convert rosbag to ros2 bag
+```
+rosbags-convert name_of_bag.bag
+```
+
 ## Prepare lidar data
 
 The user needs to prepare the point cloud data in the correct format for cloud deskewing, which is mainly done in "imageProjection.cpp". The two requirements are:
