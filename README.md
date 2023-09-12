@@ -133,6 +133,7 @@ In order to use the PX4-Autopilot toolchain, you will need to reboot your machin
 Then,
 ```
 PX4_SYS_AUTOSTART=4001 PX4_GZ_MODEL=nist PX4_GZ_MODEL_POSE=0,0,2,0,0,0 ${px4tg}
+~/ros2_ws/src/NIST_SLAM/bridge.sh
 ```
 
 ## Prepare lidar data
