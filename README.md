@@ -127,7 +127,7 @@ Use the following commands to download and compile the package. This assumes you
 
 ## Configure our custom model
 ```
-cp -R ~/ros2_ws/src/nist ~/PX4-Autopilot/Tools/simulation/gz/models/
+cp -R ~/ros2_ws/nist ~/PX4-Autopilot/Tools/simulation/gz/models/
 ```
 
 ## Running the Simulation
