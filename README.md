@@ -115,6 +115,7 @@ Use the following commands to download and compile the package. This assumes you
   source /opt/ros/humble/setup.bash
   cd ~/ros2_ws/src
   git clone https://github.com/zeligerstav/NIST_SLAM.git
+  git checkout gazebo
   git clone https://github.com/gazebosim/ros_gz.git -b humble
   export GZ_VERSION=garden
   cd ..
