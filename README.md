@@ -105,6 +105,8 @@ Install the PX4 Toolchain
 cd
 git clone https://github.com/PX4/PX4-Autopilot.git --recursive
 sudo bash ./PX4-Autopilot/Tools/setup/ubuntu.sh
+cd PX4-Autopilot
+make
 ```
 
 ## Install Package
@@ -127,7 +129,7 @@ Use the following commands to download and compile the package. This assumes you
 
 ## Configure our custom model
 ```
-cp -R ~/ros2_ws/nist ~/PX4-Autopilot/Tools/simulation/gz/models/
+cp -R ~/ros2_ws/src/NIST_SLAM/nist ~/PX4-Autopilot/Tools/simulation/gz/models/
 ```
 
 ## Running the Simulation
