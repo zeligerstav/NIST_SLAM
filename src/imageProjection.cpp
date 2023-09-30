@@ -82,7 +82,8 @@ class ImageProjection : public ParamNode { // extends ParamNode
 		rclcpp::CallbackGroup::SharedPtr callbackGroupOdom;
 		rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr pubExtractedCloud; // Octomap uses this
 		rclcpp::Publisher<lio_sam::msg::CloudInfo>::SharedPtr pubLaserCloudInfo; // featureExtration uses this
-
+	
+	public:
 		// Constructor
 		ImageProjection(const rclcpp::NodeOptions & options) : ParamServer("lio_sam_imageProjection", options), deskewFlag(0) {
 			// Init
