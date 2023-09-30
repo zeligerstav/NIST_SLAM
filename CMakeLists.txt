@@ -52,7 +52,7 @@ ament_target_dependencies(${PROJECT_NAME}_imuPreintegration rclcpp rclpy std_msg
 target_link_libraries(${PROJECT_NAME}_imuPreintegration gtsam "${cpp_typesupport_target}")
 
 add_executable(${PROJECT_NAME}_transformFusion src/transformFusion.cpp)
-ament_target_dependencies(${PROJECT_NAME}_imuPreintegration rclcpp rclpy std_msgs sensor_msgs geometry_msgs nav_msgs pcl_msgs visualization_msgs tf2 tf2_ros tf2_eigen tf2_sensor_msgs tf2_geometry_msgs OpenCV PCL GTSAM Eigen)
+ament_target_dependencies(${PROJECT_NAME}_transformFusion rclcpp rclpy std_msgs sensor_msgs geometry_msgs nav_msgs pcl_msgs visualization_msgs tf2 tf2_ros tf2_eigen tf2_sensor_msgs tf2_geometry_msgs OpenCV PCL GTSAM Eigen)
 target_link_libraries(${PROJECT_NAME}_transformFusion gtsam "${cpp_typesupport_target}")
 
 add_executable(${PROJECT_NAME}_mapOptimization src/mapOptmization.cpp)
@@ -81,6 +81,11 @@ install(
 
 install(
   TARGETS ${PROJECT_NAME}_imuPreintegration
+  DESTINATION lib/${PROJECT_NAME}
+)
+
+install(
+  TARGETS ${PROJECT_NAME}_transformFusion
   DESTINATION lib/${PROJECT_NAME}
 )
 

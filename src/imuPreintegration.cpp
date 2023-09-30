@@ -402,7 +402,7 @@ int main(int argc, char** argv)
 
     e.add_node(std::make_shared<IMUPreintegration>(options));
 
-    RCLCPP_INFO(rclcpp::get_logger("IMU Integration is alive.");
+    RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "IMU Integration is alive.");
 
     e.spin();
 
