@@ -34,7 +34,7 @@ POINT_CLOUD_REGISTER_POINT_STRUCT(OusterPointXYZIRT,
 const int queueLength = 2000; // global constant queue length
 
 // Node definition
-class ImageProjection : public ParamNode { // extends ParamNode
+class ImageProjection : public ParamServer { // extends ParamNode
 	private:
 		// Fields
 		std::mutex imuLock; // thread locker for IMU process
