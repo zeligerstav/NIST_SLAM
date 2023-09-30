@@ -831,9 +831,8 @@ public:
         }
 
         // use imu incremental estimation for pose guess (only rotation)
-        // if (cloudInfo.imu_available == true)
-        if (false)
-		{
+        if (cloudInfo.imu_available == true)
+        {
             Eigen::Affine3f transBack = pcl::getTransformation(0, 0, 0, cloudInfo.imu_roll_init, cloudInfo.imu_pitch_init, cloudInfo.imu_yaw_init);
             Eigen::Affine3f transIncre = lastImuTransformation.inverse() * transBack;
 
@@ -1315,9 +1314,8 @@ public:
 
     void transformUpdate()
     {
-        // if (cloudInfo.imu_available == true)
-        if (false);
-		{
+        if (cloudInfo.imu_available == true)
+        {
             if (std::abs(cloudInfo.imu_pitch_init) < 1.4)
             {
                 double imuWeight = imuRPYWeight;
@@ -1762,9 +1760,10 @@ int main(int argc, char** argv)
     options.use_intra_process_comms(true);
     rclcpp::executors::SingleThreadedExecutor exec;
 
-    exec.add_node(std::make_shared<mapOptimization>(options));
+    auto MO = std::make_shared<mapOptimization>(options);
+    exec.add_node(MO);
 
-    RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "MapOptimization is alive.");
+    RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "\033[1;32m----> Map Optimization Started.\033[0m");
 
     std::thread loopthread(&mapOptimization::loopClosureThread, MO);
     std::thread visualizeMapThread(&mapOptimization::visualizeGlobalMapThread, MO);
