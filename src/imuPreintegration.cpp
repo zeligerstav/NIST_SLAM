@@ -131,17 +131,21 @@ class TransformFusion : public ParamServer
 class IMUPreintegration : public ParamServer
 {
 	public:
-
+		// Fields
 		std::mutex mtx;
+		bool systemInitialized = false;
+		bool doneFirstOpt = false;
+		double lastImuT_imu = -1;
+		double lastImuT_opt = -1;
+		const double delta_t = 0;
+		int key = 1;
 
-		rclcpp::Subscription<sensor_msgs::msg::Imu>::SharedPtr subImu;
-		rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr subOdometry;
-		rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr pubImuOdometry;
-
+		// Subcriber and Publisher Nodes
+		rclcpp::Subscription<sensor_msgs::msg::Imu>::SharedPtr subImu; // from IMU
+		rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr subOdometry; // from MapOptimization
+		rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr pubImuOdometry; // for ImageProjection
 		rclcpp::CallbackGroup::SharedPtr callbackGroupImu;
 		rclcpp::CallbackGroup::SharedPtr callbackGroupOdom;
-
-		bool systemInitialized = false;
 
 		gtsam::noiseModel::Diagonal::shared_ptr priorPoseNoise;
 		gtsam::noiseModel::Diagonal::shared_ptr priorVelNoise;
@@ -149,7 +153,6 @@ class IMUPreintegration : public ParamServer
 		gtsam::noiseModel::Diagonal::shared_ptr correctionNoise;
 		gtsam::noiseModel::Diagonal::shared_ptr correctionNoise2;
 		gtsam::Vector noiseModelBetweenBias;
-
 
 		gtsam::PreintegratedImuMeasurements *imuIntegratorOpt_;
 		gtsam::PreintegratedImuMeasurements *imuIntegratorImu_;
@@ -165,61 +168,51 @@ class IMUPreintegration : public ParamServer
 		gtsam::NavState prevStateOdom;
 		gtsam::imuBias::ConstantBias prevBiasOdom;
 
-		bool doneFirstOpt = false;
-		double lastImuT_imu = -1;
-		double lastImuT_opt = -1;
-
 		gtsam::ISAM2 optimizer;
 		gtsam::NonlinearFactorGraph graphFactors;
 		gtsam::Values graphValues;
 
-		const double delta_t = 0;
-
-		int key = 1;
-
 		gtsam::Pose3 imu2Lidar = gtsam::Pose3(gtsam::Rot3(1, 0, 0, 0), gtsam::Point3(-extTrans.x(), -extTrans.y(), -extTrans.z()));
 		gtsam::Pose3 lidar2Imu = gtsam::Pose3(gtsam::Rot3(1, 0, 0, 0), gtsam::Point3(extTrans.x(), extTrans.y(), extTrans.z()));
 
-		IMUPreintegration(const rclcpp::NodeOptions & options) :
-			ParamServer("lio_sam_imu_preintegration", options)
-	{
-		callbackGroupImu = create_callback_group(
-				rclcpp::CallbackGroupType::MutuallyExclusive);
-		callbackGroupOdom = create_callback_group(
-				rclcpp::CallbackGroupType::MutuallyExclusive);
+		IMUPreintegration(const rclcpp::NodeOptions & options) : ParamServer("lio_sam_imu_preintegration", options) {
+			callbackGroupImu = create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
+			callbackGroupOdom = create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
+			auto imuOpt = rclcpp::SubscriptionOptions();
+			imuOpt.callback_group = callbackGroupImu;
+			auto odomOpt = rclcpp::SubscriptionOptions();
+			odomOpt.callback_group = callbackGroupOdom;
 
-		auto imuOpt = rclcpp::SubscriptionOptions();
-		imuOpt.callback_group = callbackGroupImu;
-		auto odomOpt = rclcpp::SubscriptionOptions();
-		odomOpt.callback_group = callbackGroupOdom;
+			// Subscribers
+			subImu = create_subscription<sensor_msgs::msg::Imu>(
+					imuTopic, qos_imu,
+					std::bind(&IMUPreintegration::imuHandler, this, std::placeholders::_1),
+					imuOpt);
+			subOdometry = create_subscription<nav_msgs::msg::Odometry>(
+					"lio_sam/mapping/odometry_incremental", qos,
+					std::bind(&IMUPreintegration::odometryHandler, this, std::placeholders::_1),
+					odomOpt);
 
-		subImu = create_subscription<sensor_msgs::msg::Imu>(
-				imuTopic, qos_imu,
-				std::bind(&IMUPreintegration::imuHandler, this, std::placeholders::_1),
-				imuOpt);
-		subOdometry = create_subscription<nav_msgs::msg::Odometry>(
-				"lio_sam/mapping/odometry_incremental", qos,
-				std::bind(&IMUPreintegration::odometryHandler, this, std::placeholders::_1),
-				odomOpt);
+			// Publishers
+			pubImuOdometry = create_publisher<nav_msgs::msg::Odometry>(odomTopic+"_incremental", qos_imu);
 
-		pubImuOdometry = create_publisher<nav_msgs::msg::Odometry>(odomTopic+"_incremental", qos_imu);
+			// Init
+			boost::shared_ptr<gtsam::PreintegrationParams> p = gtsam::PreintegrationParams::MakeSharedU(imuGravity);
+			p->accelerometerCovariance  = gtsam::Matrix33::Identity(3,3) * pow(imuAccNoise, 2); // acc white noise in continuous
+			p->gyroscopeCovariance      = gtsam::Matrix33::Identity(3,3) * pow(imuGyrNoise, 2); // gyro white noise in continuous
+			p->integrationCovariance    = gtsam::Matrix33::Identity(3,3) * pow(1e-4, 2); // error committed in integrating position from velocities
+			gtsam::imuBias::ConstantBias prior_imu_bias((gtsam::Vector(6) << 0, 0, 0, 0, 0, 0).finished());; // assume zero initial bias
 
-		boost::shared_ptr<gtsam::PreintegrationParams> p = gtsam::PreintegrationParams::MakeSharedU(imuGravity);
-		p->accelerometerCovariance  = gtsam::Matrix33::Identity(3,3) * pow(imuAccNoise, 2); // acc white noise in continuous
-		p->gyroscopeCovariance      = gtsam::Matrix33::Identity(3,3) * pow(imuGyrNoise, 2); // gyro white noise in continuous
-		p->integrationCovariance    = gtsam::Matrix33::Identity(3,3) * pow(1e-4, 2); // error committed in integrating position from velocities
-		gtsam::imuBias::ConstantBias prior_imu_bias((gtsam::Vector(6) << 0, 0, 0, 0, 0, 0).finished());; // assume zero initial bias
+			priorPoseNoise  = gtsam::noiseModel::Diagonal::Sigmas((gtsam::Vector(6) << 1e-2, 1e-2, 1e-2, 1e-2, 1e-2, 1e-2).finished()); // rad,rad,rad,m, m, m
+			priorVelNoise   = gtsam::noiseModel::Isotropic::Sigma(3, 1e4); // m/s
+			priorBiasNoise  = gtsam::noiseModel::Isotropic::Sigma(6, 1e-3); // 1e-2 ~ 1e-3 seems to be good
+			correctionNoise = gtsam::noiseModel::Diagonal::Sigmas((gtsam::Vector(6) << 0.05, 0.05, 0.05, 0.1, 0.1, 0.1).finished()); // rad,rad,rad,m, m, m
+			correctionNoise2 = gtsam::noiseModel::Diagonal::Sigmas((gtsam::Vector(6) << 1, 1, 1, 1, 1, 1).finished()); // rad,rad,rad,m, m, m
+			noiseModelBetweenBias = (gtsam::Vector(6) << imuAccBiasN, imuAccBiasN, imuAccBiasN, imuGyrBiasN, imuGyrBiasN, imuGyrBiasN).finished();
 
-		priorPoseNoise  = gtsam::noiseModel::Diagonal::Sigmas((gtsam::Vector(6) << 1e-2, 1e-2, 1e-2, 1e-2, 1e-2, 1e-2).finished()); // rad,rad,rad,m, m, m
-		priorVelNoise   = gtsam::noiseModel::Isotropic::Sigma(3, 1e4); // m/s
-		priorBiasNoise  = gtsam::noiseModel::Isotropic::Sigma(6, 1e-3); // 1e-2 ~ 1e-3 seems to be good
-		correctionNoise = gtsam::noiseModel::Diagonal::Sigmas((gtsam::Vector(6) << 0.05, 0.05, 0.05, 0.1, 0.1, 0.1).finished()); // rad,rad,rad,m, m, m
-		correctionNoise2 = gtsam::noiseModel::Diagonal::Sigmas((gtsam::Vector(6) << 1, 1, 1, 1, 1, 1).finished()); // rad,rad,rad,m, m, m
-		noiseModelBetweenBias = (gtsam::Vector(6) << imuAccBiasN, imuAccBiasN, imuAccBiasN, imuGyrBiasN, imuGyrBiasN, imuGyrBiasN).finished();
-
-		imuIntegratorImu_ = new gtsam::PreintegratedImuMeasurements(p, prior_imu_bias); // setting up the IMU integration for IMU message thread
-		imuIntegratorOpt_ = new gtsam::PreintegratedImuMeasurements(p, prior_imu_bias); // setting up the IMU integration for optimization        
-	}
+			imuIntegratorImu_ = new gtsam::PreintegratedImuMeasurements(p, prior_imu_bias); // setting up the IMU integration for IMU message thread
+			imuIntegratorOpt_ = new gtsam::PreintegratedImuMeasurements(p, prior_imu_bias); // setting up the IMU integration for optimization        
+		}
 
 		void resetOptimization()
 		{
@@ -263,7 +256,7 @@ class IMUPreintegration : public ParamServer
 			gtsam::Pose3 lidarPose = gtsam::Pose3(gtsam::Rot3::Quaternion(r_w, r_x, r_y, r_z), gtsam::Point3(p_x, p_y, p_z));
 
 
-			// 0. initialize system
+			// 0. initialize system TODO: make this a function call
 			if (systemInitialized == false)
 			{
 				resetOptimization();
@@ -309,7 +302,7 @@ class IMUPreintegration : public ParamServer
 			}
 
 
-			// reset graph for speed
+			// reset graph for speed TODO: make this a function call
 			if (key == 100)
 			{
 				// get updated noise before reset
@@ -513,7 +506,7 @@ int main(int argc, char** argv)
 	e.add_node(ImuP);
 	e.add_node(TF);
 
-	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "\033[1;32m----> IMU Preintegration Started.\033[0m");
+	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "IMU Integration is alive.");
 
 	e.spin();
 
