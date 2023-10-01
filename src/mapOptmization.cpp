@@ -5,7 +5,6 @@
 #include <gtsam/geometry/Pose3.h>
 #include <gtsam/slam/PriorFactor.h>
 #include <gtsam/slam/BetweenFactor.h>
-#include <gtsam/navigation/GPSFactor.h>
 #include <gtsam/navigation/ImuFactor.h>
 #include <gtsam/navigation/CombinedImuFactor.h>
 #include <gtsam/nonlinear/NonlinearFactorGraph.h>
@@ -21,7 +20,6 @@ using namespace gtsam;
 using symbol_shorthand::X; // Pose3 (x,y,z,r,p,y)
 using symbol_shorthand::V; // Vel   (xdot,ydot,zdot)
 using symbol_shorthand::B; // Bias  (ax,ay,az,gx,gy,gz)
-using symbol_shorthand::G; // GPS pose
 
 /*
  * A point cloud type that has 6D pose info ([x,y,z,roll,pitch,yaw] intensity is time stamp)
@@ -314,11 +312,6 @@ POINT_CLOUD_REGISTER_POINT_STRUCT (PointXYZIRPYT,
 
 				publishFrames();
 			}
-		}
-
-		void gpsHandler(const nav_msgs::msg::Odometry::SharedPtr gpsMsg)
-		{
-			gpsQueue.push_back(*gpsMsg);
 		}
 
 		void pointAssociateToMap(PointType const * const pi, PointType * const po)
@@ -800,21 +793,6 @@ POINT_CLOUD_REGISTER_POINT_STRUCT (PointXYZIRPYT,
 					return;
 				}
 			}
-
-			// use imu incremental estimation for pose guess (only rotation)
-			if (cloudInfo.imu_available == true)
-			{
-				Eigen::Affine3f transBack = pcl::getTransformation(0, 0, 0, cloudInfo.imu_roll_init, cloudInfo.imu_pitch_init, cloudInfo.imu_yaw_init);
-				Eigen::Affine3f transIncre = lastImuTransformation.inverse() * transBack;
-
-				Eigen::Affine3f transTobe = trans2Affine3f(transformTobeMapped);
-				Eigen::Affine3f transFinal = transTobe * transIncre;
-				pcl::getTranslationAndEulerAngles(transFinal, transformTobeMapped[3], transformTobeMapped[4], transformTobeMapped[5], 
-						transformTobeMapped[0], transformTobeMapped[1], transformTobeMapped[2]);
-
-				lastImuTransformation = pcl::getTransformation(0, 0, 0, cloudInfo.imu_roll_init, cloudInfo.imu_pitch_init, cloudInfo.imu_yaw_init); // save imu before return;
-				return;
-			}
 		}
 
 		void extractForLoopClosure()
@@ -1285,29 +1263,6 @@ POINT_CLOUD_REGISTER_POINT_STRUCT (PointXYZIRPYT,
 
 		void transformUpdate()
 		{
-			if (cloudInfo.imu_available == true)
-			{
-				if (std::abs(cloudInfo.imu_pitch_init) < 1.4)
-				{
-					double imuWeight = imuRPYWeight;
-					tf2::Quaternion imuQuaternion;
-					tf2::Quaternion transformQuaternion;
-					double rollMid, pitchMid, yawMid;
-
-					// slerp roll
-					transformQuaternion.setRPY(transformTobeMapped[0], 0, 0);
-					imuQuaternion.setRPY(cloudInfo.imu_roll_init, 0, 0);
-					tf2::Matrix3x3(transformQuaternion.slerp(imuQuaternion, imuWeight)).getRPY(rollMid, pitchMid, yawMid);
-					transformTobeMapped[0] = rollMid;
-
-					// slerp pitch
-					transformQuaternion.setRPY(0, transformTobeMapped[1], 0);
-					imuQuaternion.setRPY(0, cloudInfo.imu_pitch_init, 0);
-					tf2::Matrix3x3(transformQuaternion.slerp(imuQuaternion, imuWeight)).getRPY(rollMid, pitchMid, yawMid);
-					transformTobeMapped[1] = pitchMid;
-				}
-			}
-
 			transformTobeMapped[0] = constraintTransformation(transformTobeMapped[0], rotation_tollerance);
 			transformTobeMapped[1] = constraintTransformation(transformTobeMapped[1], rotation_tollerance);
 			transformTobeMapped[5] = constraintTransformation(transformTobeMapped[5], z_tollerance);
@@ -1368,85 +1323,6 @@ POINT_CLOUD_REGISTER_POINT_STRUCT (PointXYZIRPYT,
 			}
 		}
 
-		void addGPSFactor()
-		{
-			if (gpsQueue.empty())
-				return;
-
-			// wait for system initialized and settles down
-			if (cloudKeyPoses3D->points.empty())
-				return;
-			else
-			{
-				if (pointDistance(cloudKeyPoses3D->front(), cloudKeyPoses3D->back()) < 5.0)
-					return;
-			}
-
-			// pose covariance small, no need to correct
-			if (poseCovariance(3,3) < poseCovThreshold && poseCovariance(4,4) < poseCovThreshold)
-				return;
-
-			// last gps position
-			static PointType lastGPSPoint;
-
-			while (!gpsQueue.empty())
-			{
-				if (stamp2Sec(gpsQueue.front().header.stamp) < timeLaserInfoCur - 0.2)
-				{
-					// message too old
-					gpsQueue.pop_front();
-				}
-				else if (stamp2Sec(gpsQueue.front().header.stamp) > timeLaserInfoCur + 0.2)
-				{
-					// message too new
-					break;
-				}
-				else
-				{
-					nav_msgs::msg::Odometry thisGPS = gpsQueue.front();
-					gpsQueue.pop_front();
-
-					// GPS too noisy, skip
-					float noise_x = thisGPS.pose.covariance[0];
-					float noise_y = thisGPS.pose.covariance[7];
-					float noise_z = thisGPS.pose.covariance[14];
-					if (noise_x > gpsCovThreshold || noise_y > gpsCovThreshold)
-						continue;
-					float gps_x = thisGPS.pose.pose.position.x;
-					float gps_y = thisGPS.pose.pose.position.y;
-					float gps_z = thisGPS.pose.pose.position.z;
-					if (!useGpsElevation)
-					{
-						gps_z = transformTobeMapped[5];
-						noise_z = 0.01;
-					}
-
-					// GPS not properly initialized (0,0,0)
-					if (abs(gps_x) < 1e-6 && abs(gps_y) < 1e-6)
-						continue;
-
-					// Add GPS every a few meters
-					PointType curGPSPoint;
-					curGPSPoint.x = gps_x;
-					curGPSPoint.y = gps_y;
-					curGPSPoint.z = gps_z;
-					if (pointDistance(curGPSPoint, lastGPSPoint) < 5.0)
-						continue;
-					else
-						lastGPSPoint = curGPSPoint;
-
-					gtsam::Vector Vector3(3);
-					Vector3 << max(noise_x, 1.0f), max(noise_y, 1.0f), max(noise_z, 1.0f);
-					noiseModel::Diagonal::shared_ptr gps_noise = noiseModel::Diagonal::Variances(Vector3);
-					gtsam::GPSFactor gps_factor(cloudKeyPoses3D->size(), gtsam::Point3(gps_x, gps_y, gps_z), gps_noise);
-					gtSAMgraph.add(gps_factor);
-
-					aLoopIsClosed = true;
-					break;
-				}
-			}
-		}
-
 		void addLoopFactor()
 		{
 			if (loopIndexQueue.empty())
@@ -1474,9 +1350,6 @@ POINT_CLOUD_REGISTER_POINT_STRUCT (PointXYZIRPYT,
 
 			// odom factor
 			addOdomFactor();
-
-			// gps factor
-			addGPSFactor();
 
 			// loop factor
 			addLoopFactor();
