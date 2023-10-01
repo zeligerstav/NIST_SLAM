@@ -422,7 +422,7 @@ POINT_CLOUD_REGISTER_POINT_STRUCT(OusterPointXYZIRT,
 		void findPosition(double relTime, float *posXCur, float *posYCur, float *posZCur)
 		{
 			*posXCur = 0; *posYCur = 0; *posZCur = 0;
-			if (cloudInfo.odom_Available == true && odomDeskewFlag == true) {
+			if (cloudInfo.odom_available == true && odomDeskewFlag == true) {
 				float ratio = relTime / (timeScanEnd - timeScanCur);
 
 				*posXCur = ratio * odomIncreX;
