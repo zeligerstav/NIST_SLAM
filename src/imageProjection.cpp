@@ -231,7 +231,6 @@ POINT_CLOUD_REGISTER_POINT_STRUCT(OusterPointXYZIRT,
 			timeScanEnd = timeScanCur + laserCloudIn->points.back().time;
 
 			// Set deskew params
-			ringFlag = 1;
 			deskewFlag = 1;
 
 			return true;
@@ -423,7 +422,7 @@ POINT_CLOUD_REGISTER_POINT_STRUCT(OusterPointXYZIRT,
 		void findPosition(double relTime, float *posXCur, float *posYCur, float *posZCur)
 		{
 			*posXCur = 0; *posYCur = 0; *posZCur = 0;
-			if (cloudInfo.odomAvailable == true && odomDeskewFlag == true) {
+			if (cloudInfo.odom_Available == true && odomDeskewFlag == true) {
 				float ratio = relTime / (timeScanEnd - timeScanCur);
 
 				*posXCur = ratio * odomIncreX;
