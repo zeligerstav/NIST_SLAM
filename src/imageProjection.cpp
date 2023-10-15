@@ -279,8 +279,8 @@ POINT_CLOUD_REGISTER_POINT_STRUCT(OusterPointXYZIRT,
 
 				// Normally, this is where we'd get the roll/pitch/yaw estimates
 				// TODO: should we do a state estimate here? The example does not do an estimate here
-				if (currentImuTime <= timeScanCur)
-					imuRPY2rosRPY(&thisImuMsg, &cloudInfo.imu_roll_init, &cloudInfo.imu_pitch_init, &cloudInfo.imu_yaw_init);
+				// if (currentImuTime <= timeScanCur)
+				// 	imuRPY2rosRPY(&thisImuMsg, &cloudInfo.imu_roll_init, &cloudInfo.imu_pitch_init, &cloudInfo.imu_yaw_init);
 				if (currentImuTime > timeScanEnd + 0.01)
 					break;
 

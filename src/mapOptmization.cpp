@@ -794,20 +794,20 @@ public:
             }
         }
 
-        // use imu incremental estimation for pose guess (only rotation)
-        if (cloudInfo.imu_available == true)
-        {
-            Eigen::Affine3f transBack = pcl::getTransformation(0, 0, 0, cloudInfo.imu_roll_init, cloudInfo.imu_pitch_init, cloudInfo.imu_yaw_init);
-            Eigen::Affine3f transIncre = lastImuTransformation.inverse() * transBack;
+        // // use imu incremental estimation for pose guess (only rotation)
+        // if (cloudInfo.imu_available == true)
+        // {
+        //     Eigen::Affine3f transBack = pcl::getTransformation(0, 0, 0, cloudInfo.imu_roll_init, cloudInfo.imu_pitch_init, cloudInfo.imu_yaw_init);
+        //     Eigen::Affine3f transIncre = lastImuTransformation.inverse() * transBack;
 
-            Eigen::Affine3f transTobe = trans2Affine3f(transformTobeMapped);
-            Eigen::Affine3f transFinal = transTobe * transIncre;
-            pcl::getTranslationAndEulerAngles(transFinal, transformTobeMapped[3], transformTobeMapped[4], transformTobeMapped[5], 
-                                                          transformTobeMapped[0], transformTobeMapped[1], transformTobeMapped[2]);
+        //     Eigen::Affine3f transTobe = trans2Affine3f(transformTobeMapped);
+        //     Eigen::Affine3f transFinal = transTobe * transIncre;
+        //     pcl::getTranslationAndEulerAngles(transFinal, transformTobeMapped[3], transformTobeMapped[4], transformTobeMapped[5], 
+        //                                                   transformTobeMapped[0], transformTobeMapped[1], transformTobeMapped[2]);
 
-            lastImuTransformation = pcl::getTransformation(0, 0, 0, cloudInfo.imu_roll_init, cloudInfo.imu_pitch_init, cloudInfo.imu_yaw_init); // save imu before return;
-            return;
-        }
+        //     lastImuTransformation = pcl::getTransformation(0, 0, 0, cloudInfo.imu_roll_init, cloudInfo.imu_pitch_init, cloudInfo.imu_yaw_init); // save imu before return;
+        //     return;
+        // }
     }
 
     void extractForLoopClosure()
@@ -1278,28 +1278,28 @@ public:
 
     void transformUpdate()
     {
-        if (cloudInfo.imu_available == true)
-        {
-            if (std::abs(cloudInfo.imu_pitch_init) < 1.4)
-            {
-                double imuWeight = imuRPYWeight;
-                tf2::Quaternion imuQuaternion;
-                tf2::Quaternion transformQuaternion;
-                double rollMid, pitchMid, yawMid;
+        // if (cloudInfo.imu_available == true)
+        // {
+        //     if (std::abs(cloudInfo.imu_pitch_init) < 1.4)
+        //     {
+        //         double imuWeight = imuRPYWeight;
+        //         tf2::Quaternion imuQuaternion;
+        //         tf2::Quaternion transformQuaternion;
+        //         double rollMid, pitchMid, yawMid;
 
-                // slerp roll
-                transformQuaternion.setRPY(transformTobeMapped[0], 0, 0);
-                imuQuaternion.setRPY(cloudInfo.imu_roll_init, 0, 0);
-                tf2::Matrix3x3(transformQuaternion.slerp(imuQuaternion, imuWeight)).getRPY(rollMid, pitchMid, yawMid);
-                transformTobeMapped[0] = rollMid;
+        //         // slerp roll
+        //         transformQuaternion.setRPY(transformTobeMapped[0], 0, 0);
+        //         imuQuaternion.setRPY(cloudInfo.imu_roll_init, 0, 0);
+        //         tf2::Matrix3x3(transformQuaternion.slerp(imuQuaternion, imuWeight)).getRPY(rollMid, pitchMid, yawMid);
+        //         transformTobeMapped[0] = rollMid;
 
-                // slerp pitch
-                transformQuaternion.setRPY(0, transformTobeMapped[1], 0);
-                imuQuaternion.setRPY(0, cloudInfo.imu_pitch_init, 0);
-                tf2::Matrix3x3(transformQuaternion.slerp(imuQuaternion, imuWeight)).getRPY(rollMid, pitchMid, yawMid);
-                transformTobeMapped[1] = pitchMid;
-            }
-        }
+        //         // slerp pitch
+        //         transformQuaternion.setRPY(0, transformTobeMapped[1], 0);
+        //         imuQuaternion.setRPY(0, cloudInfo.imu_pitch_init, 0);
+        //         tf2::Matrix3x3(transformQuaternion.slerp(imuQuaternion, imuWeight)).getRPY(rollMid, pitchMid, yawMid);
+        //         transformTobeMapped[1] = pitchMid;
+        //     }
+        // }
 
         transformTobeMapped[0] = constraintTransformation(transformTobeMapped[0], rotation_tollerance);
         transformTobeMapped[1] = constraintTransformation(transformTobeMapped[1], rotation_tollerance);
@@ -1556,28 +1556,28 @@ public:
             increOdomAffine = increOdomAffine * affineIncre;
             float x, y, z, roll, pitch, yaw;
             pcl::getTranslationAndEulerAngles (increOdomAffine, x, y, z, roll, pitch, yaw);
-            if (cloudInfo.imu_available == true)
-            {
-                if (std::abs(cloudInfo.imu_pitch_init) < 1.4)
-                {
-                    double imuWeight = 0.1;
-                    tf2::Quaternion imuQuaternion;
-                    tf2::Quaternion transformQuaternion;
-                    double rollMid, pitchMid, yawMid;
+            // if (cloudInfo.imu_available == true)
+            // {
+            //     if (std::abs(cloudInfo.imu_pitch_init) < 1.4)
+            //     {
+            //         double imuWeight = 0.1;
+            //         tf2::Quaternion imuQuaternion;
+            //         tf2::Quaternion transformQuaternion;
+            //         double rollMid, pitchMid, yawMid;
 
-                    // slerp roll
-                    transformQuaternion.setRPY(roll, 0, 0);
-                    imuQuaternion.setRPY(cloudInfo.imu_roll_init, 0, 0);
-                    tf2::Matrix3x3(transformQuaternion.slerp(imuQuaternion, imuWeight)).getRPY(rollMid, pitchMid, yawMid);
-                    roll = rollMid;
+            //         // slerp roll
+            //         transformQuaternion.setRPY(roll, 0, 0);
+            //         imuQuaternion.setRPY(cloudInfo.imu_roll_init, 0, 0);
+            //         tf2::Matrix3x3(transformQuaternion.slerp(imuQuaternion, imuWeight)).getRPY(rollMid, pitchMid, yawMid);
+            //         roll = rollMid;
 
-                    // slerp pitch
-                    transformQuaternion.setRPY(0, pitch, 0);
-                    imuQuaternion.setRPY(0, cloudInfo.imu_pitch_init, 0);
-                    tf2::Matrix3x3(transformQuaternion.slerp(imuQuaternion, imuWeight)).getRPY(rollMid, pitchMid, yawMid);
-                    pitch = pitchMid;
-                }
-            }
+            //         // slerp pitch
+            //         transformQuaternion.setRPY(0, pitch, 0);
+            //         imuQuaternion.setRPY(0, cloudInfo.imu_pitch_init, 0);
+            //         tf2::Matrix3x3(transformQuaternion.slerp(imuQuaternion, imuWeight)).getRPY(rollMid, pitchMid, yawMid);
+            //         pitch = pitchMid;
+            //     }
+            // }
             laserOdomIncremental.header.stamp = timeLaserInfoStamp;
             laserOdomIncremental.header.frame_id = odometryFrame;
             laserOdomIncremental.child_frame_id = "odom_mapping";
