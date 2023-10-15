@@ -31,11 +31,7 @@ def generate_launch_description():
             remappings=[
                 ('/cloud_in','/lio_sam/deskew/cloud_deskewed'),
             ],
-            parameters=[
-                {'frame_id': 'map'},
-                {'sensor_model.max_range': 25.0},
-                {'resolution': 0.3},                
-            ],
+            parameters=[parameter_file],
         ),
         Node(
             package='tf2_ros',

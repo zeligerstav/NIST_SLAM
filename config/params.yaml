@@ -1,6 +1,11 @@
 /**:
   ros__parameters:
 
+    # Octomap
+    frame_id: 'map'
+    sensor_model.max_range: 25.0
+    resolution: 0.3 
+
     # Topics
     pointCloudTopic: "/points_raw"                   # Point cloud data
     imuTopic: "/imu_parsed"                        # IMU data
