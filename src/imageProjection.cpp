@@ -554,7 +554,7 @@ int main(int argc, char** argv)
 	auto IP = std::make_shared<ImageProjection>(options);
 	exec.add_node(IP);
 
-	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "ImageProjection is alive.");
+	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "\033[1;32m Image Projection is alive.\033[0m");
 
 	exec.spin();
 

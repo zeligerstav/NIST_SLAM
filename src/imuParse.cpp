@@ -46,7 +46,7 @@ int main(int argc, char** argv)
 
 	auto node = std::make_shared<ImuParse>(options);
 	exec.add_node(node);
-	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "[DEV] IMU PARSER IS ACTIVE");
+	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "\033[1;31m [DEV] \033[1;32m IMU hijacking is active.\033[0m");
 
 	exec.spin();
 	rclcpp::shutdown();

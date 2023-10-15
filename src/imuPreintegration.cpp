@@ -506,7 +506,7 @@ int main(int argc, char** argv)
 	e.add_node(ImuP);
 	e.add_node(TF);
 
-	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "IMU Integration is alive.");
+	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "\033[1;32m Preintegration is alive.\033[0m");
 
 	e.spin();
 
