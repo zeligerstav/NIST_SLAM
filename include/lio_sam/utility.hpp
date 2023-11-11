@@ -100,6 +100,8 @@ public:
     float lidarMaxRange;
 
     // IMU
+    int imuType;
+    float imuHz;
     float imuAccNoise;
     float imuGyrNoise;
     float imuAccBiasN;
@@ -220,6 +222,11 @@ public:
         declare_parameter("lidarMaxRange", 1000.0);
         get_parameter("lidarMaxRange", lidarMaxRange);
 
+        declare_parameter("imuType", 1);
+        get_parameter("imuType", imuType);
+        declare_parameter("imuHz", 500.0);
+        get_parameter("imuHz", imuHz);
+        
         declare_parameter("imuAccNoise", 9e-4);
         get_parameter("imuAccNoise", imuAccNoise);
         declare_parameter("imuGyrNoise", 1.6e-4);

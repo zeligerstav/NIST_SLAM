@@ -33,6 +33,8 @@
     lidarMaxRange: 25.0                        # default: 1000.0, maximum lidar range to be used
 
     # IMU Settings
+    imuType: 1 # 0: 6-axis, 1: 9-axis
+    imuHz: 500.0 # imu frequency
     imuAccNoise: 3.99396e-01
     imuGyrNoise: 1.56363e+01
     imuAccBiasN: 6.43567e-02

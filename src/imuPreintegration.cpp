@@ -341,7 +341,7 @@ class IMUPreintegration : public ParamServer
 				double imuTime = stamp2Sec(thisImu->header.stamp);
 				if (imuTime < currentCorrectionTime - delta_t)
 				{
-					double dt = (lastImuT_opt < 0) ? (1.0 / 500.0) : (imuTime - lastImuT_opt);
+					double dt = (lastImuT_opt < 0) ? (1.0 / imuHz) : (imuTime - lastImuT_opt);
 					imuIntegratorOpt_->integrateMeasurement(
 							gtsam::Vector3(thisImu->linear_acceleration.x, thisImu->linear_acceleration.y, thisImu->linear_acceleration.z),
 							gtsam::Vector3(thisImu->angular_velocity.x,    thisImu->angular_velocity.y,    thisImu->angular_velocity.z), dt);
@@ -409,7 +409,7 @@ class IMUPreintegration : public ParamServer
 				{
 					sensor_msgs::msg::Imu *thisImu = &imuQueImu[i];
 					double imuTime = stamp2Sec(thisImu->header.stamp);
-					double dt = (lastImuQT < 0) ? (1.0 / 500.0) :(imuTime - lastImuQT);
+					double dt = (lastImuQT < 0) ? (1.0 / imuHz) :(imuTime - lastImuQT);
 
 					imuIntegratorImu_->integrateMeasurement(gtsam::Vector3(thisImu->linear_acceleration.x, thisImu->linear_acceleration.y, thisImu->linear_acceleration.z),
 							gtsam::Vector3(thisImu->angular_velocity.x,    thisImu->angular_velocity.y,    thisImu->angular_velocity.z), dt);
@@ -454,7 +454,7 @@ class IMUPreintegration : public ParamServer
 				return;
 
 			double imuTime = stamp2Sec(thisImu.header.stamp);
-			double dt = (lastImuT_imu < 0) ? (1.0 / 500.0) : (imuTime - lastImuT_imu);
+			double dt = (lastImuT_imu < 0) ? (1.0 / imuHz) : (imuTime - lastImuT_imu);
 			lastImuT_imu = imuTime;
 
 			// integrate this single imu message
