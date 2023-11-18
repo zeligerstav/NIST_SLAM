@@ -3,7 +3,7 @@
 
     # Topics
     pointCloudTopic: "/ouster/points"                   # Point cloud data
-    imuTopic: "/ouster/imu"                        # IMU data
+    imuTopic: "/imu_parsed"                        # IMU data
     odomTopic: "odometry/imu"                    # IMU pre-preintegration odometry, same frequency as IMU
     gpsTopic: "odometry/gpsz"                    # GPS odometry topic from navsat, see module_navsat.launch file
 
@@ -29,27 +29,27 @@
     Horizon_SCAN: 2048                            # lidar horizontal resolution (Velodyne:1800, Ouster:512,1024,2048, Livox Horizon: 4000)
     downsampleRate: 1                            # default: 1. Downsample your data if too many
     # points. i.e., 16 = 64 / 4, 16 = 16 / 1
-    lidarMinRange: 0.1                           # default: 1.0, minimum lidar range to be used
-    lidarMaxRange: 25.0                        # default: 1000.0, maximum lidar range to be used
+    lidarMinRange: 0.5                           # default: 1.0, minimum lidar range to be used
+    lidarMaxRange: 400.0                        # default: 1000.0, maximum lidar range to be used
 
     # IMU Settings
     imuType: 1 # 0: 6-axis, 1: 9-axis
-    imuHz: 500.0 # imu frequency
-    imuAccNoise: 3.99396e-01
-    imuGyrNoise: 1.56363e+01
-    imuAccBiasN: 6.43567e-02
-    imuGyrBiasN: 3.56403e+02
+    imuHz: 100.0 # imu frequency
+    imuAccNoise: 3.99396e-02 
+    imuGyrNoise: 1.56363e-02
+    imuAccBiasN: 6.43567e-03
+    imuGyrBiasN: 3.56403e-03    
 
-    imuGravity: 9.8
-    imuRPYWeight: 1.0e-05
+    imuGravity: 9.806
+    imuRPYWeight: 0.1
 
-    extrinsicTransform: [0.0, 0.0, 36.180e-02]
-    extrinsicRot:    [-1.0,  0.0,  0.0,
-                       0.0, -1.0,  0.0,
+    extrinsicTransform: [-161.0e-03, 0.0, 0.0]
+    extrinsicRot:    [ -1.0,  0.0,  0.0,
+                       0.0, 1.0,  0.0,
+                       0.0,  0.0,  -1.0 ]
+    extrinsicRPY:    [ 1.0,  0.0,  0.0,
+                       0.0,  1.0,  0.0,
                        0.0,  0.0,  1.0 ]
-    extrinsicRPY: [ 1.0,  0.0,  0.0,
-                    0.0,  1.0,  0.0,
-                    0.0,  0.0,  1.0 ]
 
     # LOAM feature threshold
     edgeThreshold: 1.0
@@ -95,4 +95,4 @@
     globalMapVisualizationLeafSize: 1.0           # meters, global map visualization cloud density
 
     # Octomap
-    resolution: 0.3
+    resolution: 0.1

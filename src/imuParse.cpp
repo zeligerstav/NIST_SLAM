@@ -28,7 +28,7 @@ class ImuParse : public ParamServer
             // acceleration_subscription_ = this->create_subscription<px4_msgs::msg::VehicleAcceleration>(
             //     "vehicle_acceleration", 10, std::bind(&ImuParse::accelerationCallback, this, std::placeholders::_1));
 
-            rclcpp::QoS qos(rclcpp::KeepLast(1));
+            rclcpp::QoS qos(rclcpp::KeepLast(200));
             qos.reliability(rclcpp::ReliabilityPolicy::BestEffort);
 
             sensor_combined_subscription = this->create_subscription<px4_msgs::msg::SensorCombined>(
@@ -42,21 +42,23 @@ class ImuParse : public ParamServer
                 "/fmu/out/vehicle_odometry", qos, std::bind(&ImuParse::odometryCallback, this, std::placeholders::_1));
 
             ouster_subscription = this->create_subscription<sensor_msgs::msg::Imu>(
-                "/ouster/imu", 10, std::bind(&ImuParse::ousterCallback, this, std::placeholders::_1)
+                "/imu_parsed_bag", 10, std::bind(&ImuParse::bagCallback, this, std::placeholders::_1)
             );
 
             imu_publisher_ = this->create_publisher<sensor_msgs::msg::Imu>("imu_parsed", 10);
             test_publisher = this->create_publisher<std_msgs::msg::String>("test", 10);
+            imuReParse_publisher_ = this->create_publisher<sensor_msgs::msg::Imu>("imu_reParsed", 10);
 
             auto message = std_msgs::msg::String();
             message.data = "imuparse constructor";
             test_publisher->publish(message);
         }
 
-        void ousterCallback(const sensor_msgs::msg::Imu::SharedPtr msg)
+        void bagCallback(const sensor_msgs::msg::Imu::SharedPtr msg)
         {
-            imu_msg_.header = msg->header;
-            imu_publisher_->publish(imu_msg_);
+            reParsed_imu_msg_.header = msg->header;
+            reParsed_imu_msg_.header.frame_id = "odometry/imu";
+            imuReParse_publisher_->publish(reParsed_imu_msg_);
         }
 
         void attitudeCallback(const px4_msgs::msg::VehicleAttitude::SharedPtr msg)
@@ -95,19 +97,15 @@ class ImuParse : public ParamServer
 
             imu_msg_.linear_acceleration = linear_acceleration;
 
-            // int t = (int) msg->timestamp;
+            header.stamp = rclcpp::Clock(RCL_ROS_TIME).now();
+            header.frame_id = "odometry/imu";
 
-            // rclcpp::Time timestamp(t/1000000, (t%((int)1000000))*1000);
-            // header.stamp = timestamp;
-            // header.frame_id = "os_imu";
-
-            // imu_msg_.header = header;
-
+            imu_msg_.header = header;
 
             // message.data = std::to_string(t/1000000);
             // test_publisher->publish(message);
 
-            // imu_publisher_->publish(imu_msg_);
+            imu_publisher_->publish(imu_msg_);
 
         }
 
@@ -124,6 +122,7 @@ class ImuParse : public ParamServer
 
         void odometryCallback(const px4_msgs::msg::VehicleOdometry::SharedPtr msg)
         {
+            std_msgs::msg::Header header;
             array<double, 9> orientation_covariance = {msg->orientation_variance[1], 0, 0, 0, msg->orientation_variance[2], 0, 0, 0, msg->orientation_variance[3]};
 
             // imu_msg_.orientation_covariance = orientation_covariance;
@@ -136,12 +135,16 @@ class ImuParse : public ParamServer
             imu_msg_.angular_velocity = angular_velocity;
 
             geometry_msgs::msg::Quaternion orientation;
-            orientation.x = msg->q[0];
-            orientation.y = msg->q[1];
-            orientation.z = msg->q[2];
-            orientation.w = msg->q[3];
+            orientation.x = msg->q[1];
+            orientation.y = msg->q[2];
+            orientation.z = msg->q[3];
+            orientation.w = msg->q[0];
 
             imu_msg_.orientation = orientation;
+
+            header.stamp = rclcpp::Clock(RCL_ROS_TIME).now();
+            header.frame_id = "odometry/imu";
+
 
             // std_msgs::msg::Header header;
             // int t = (int) msg->timestamp;
@@ -149,9 +152,9 @@ class ImuParse : public ParamServer
             // rclcpp::Time timestamp(t/1000000, (t%((int)1000000))*1000);
             // header.stamp = timestamp;
             // header.frame_id = "os_imu";
-            // imu_msg_.header = header;
+            imu_msg_.header = header;
 
-            // imu_publisher_->publish(imu_msg_);
+            imu_publisher_->publish(imu_msg_);
         }
 
     private:
@@ -166,8 +169,11 @@ class ImuParse : public ParamServer
 
         rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr imu_publisher_;
         rclcpp::Publisher<std_msgs::msg::String>::SharedPtr test_publisher;
+        rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr imuReParse_publisher_;
 
         sensor_msgs::msg::Imu imu_msg_;
+        sensor_msgs::msg::Imu reParsed_imu_msg_;
+
 };
 
 int main(int argc, char** argv)

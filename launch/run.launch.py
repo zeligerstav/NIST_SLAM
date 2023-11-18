@@ -29,7 +29,10 @@ def generate_launch_description():
             name='my_octomap',
             executable='octomap_server_node',
             remappings=[
-                ('/cloud_in','/lio_sam/deskew/cloud_deskewed'),
+                ('/cloud_in','/lio_sam/mapping/cloud_registered_raw'),
+                ('publish_free_space', 'True'),
+                ('frame_id','map'),
+                ('filter_ground','False')
             ],
             parameters=[parameter_file],
         ),
@@ -49,13 +52,13 @@ def generate_launch_description():
                 'robot_description': Command(['xacro', ' ', xacro_path])
             }]
         ),
-        # Node(
-        #     package='lio_sam',
-        #     executable='lio_sam_imuParse',
-        #     name='lio_sam_imuParse',
-        #     parameters=[parameter_file],
-        #     output='screen'
-        # ),
+        Node(
+            package='lio_sam',
+            executable='lio_sam_imuParse',
+            name='lio_sam_imuParse',
+            parameters=[parameter_file],
+            output='screen'
+        ),
         Node(
             package='lio_sam',
             executable='lio_sam_imuPreintegration',
