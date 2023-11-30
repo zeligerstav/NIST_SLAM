@@ -34,19 +34,19 @@
 
     # IMU Settings
     imuType: 1 # 0: 6-axis, 1: 9-axis
-    imuHz: 100.0 # imu frequency
-    imuAccNoise: 3.99396e-02 
-    imuGyrNoise: 1.56363e-02
-    imuAccBiasN: 6.43567e-03
-    imuGyrBiasN: 3.56403e-03    
+    imuHz: 500.0 # imu frequency
+    imuAccNoise: 3.99396e-03 
+    imuGyrNoise: 1.56363e-03
+    imuAccBiasN: 6.43567e-05
+    imuGyrBiasN: 3.56403e-05    
 
     imuGravity: 9.806
     imuRPYWeight: 0.1
 
-    extrinsicTransform: [-161.0e-03, 0.0, 0.0]
-    extrinsicRot:    [ -1.0,  0.0,  0.0,
+    extrinsicTransform: [0.0, 0.0, 50.0]
+    extrinsicRot:    [ 1.0,  0.0,  0.0,
                        0.0, 1.0,  0.0,
-                       0.0,  0.0,  -1.0 ]
+                       0.0,  0.0,  1.0 ]
     extrinsicRPY:    [ 1.0,  0.0,  0.0,
                        0.0,  1.0,  0.0,
                        0.0,  0.0,  1.0 ]

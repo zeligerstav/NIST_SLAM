@@ -31,18 +31,18 @@ class ImuParse : public ParamServer
             rclcpp::QoS qos(rclcpp::KeepLast(200));
             qos.reliability(rclcpp::ReliabilityPolicy::BestEffort);
 
-            sensor_combined_subscription = this->create_subscription<px4_msgs::msg::SensorCombined>(
-                "/fmu/out/sensor_combined", qos, std::bind(&ImuParse::sensorCombinedCallback, this, std::placeholders::_1)
-            );
+            // sensor_combined_subscription = this->create_subscription<px4_msgs::msg::SensorCombined>(
+            //     "/fmu/out/sensor_combined", qos, std::bind(&ImuParse::sensorCombinedCallback, this, std::placeholders::_1)
+            // );
 
             // angular_velocity_subscription_ = this->create_subscription<px4_msgs::msg::VehicleAngularVelocity>(
             //     "vehicle_angular_velocity", 10, std::bind(&ImuParse::angularVelocityCallback, this, std::placeholders::_1));
 
-            odometry_subscription_ = this->create_subscription<px4_msgs::msg::VehicleOdometry>(
-                "/fmu/out/vehicle_odometry", qos, std::bind(&ImuParse::odometryCallback, this, std::placeholders::_1));
+            // odometry_subscription_ = this->create_subscription<px4_msgs::msg::VehicleOdometry>(
+            //     "/fmu/out/vehicle_odometry", qos, std::bind(&ImuParse::odometryCallback, this, std::placeholders::_1));
 
             ouster_subscription = this->create_subscription<sensor_msgs::msg::Imu>(
-                "/imu_parsed_bag", 10, std::bind(&ImuParse::bagCallback, this, std::placeholders::_1)
+                "/imu/data", 10, std::bind(&ImuParse::bagCallback, this, std::placeholders::_1)
             );
 
             imu_publisher_ = this->create_publisher<sensor_msgs::msg::Imu>("imu_parsed", 10);
@@ -56,22 +56,23 @@ class ImuParse : public ParamServer
 
         void bagCallback(const sensor_msgs::msg::Imu::SharedPtr msg)
         {
-            reParsed_imu_msg_.header = msg->header;
-            reParsed_imu_msg_.header.frame_id = "odometry/imu";
-            imuReParse_publisher_->publish(reParsed_imu_msg_);
+            imu_msg_ = *msg;
+            imu_msg_.header.stamp = rclcpp::Clock(RCL_ROS_TIME).now();
+            imu_msg_.header.frame_id = "odometry/imu";
+            imu_publisher_->publish(imu_msg_);
         }
 
-        void attitudeCallback(const px4_msgs::msg::VehicleAttitude::SharedPtr msg)
-        {
-            geometry_msgs::msg::Quaternion orientation;
-            orientation.x = msg->q[0];
-            orientation.y = msg->q[1];
-            orientation.z = msg->q[2];
-            orientation.w = msg->q[3];
+        // void attitudeCallback(const px4_msgs::msg::VehicleAttitude::SharedPtr msg)
+        // {
+        //     geometry_msgs::msg::Quaternion orientation;
+        //     orientation.x = msg->q[0];
+        //     orientation.y = msg->q[1];
+        //     orientation.z = msg->q[2];
+        //     orientation.w = msg->q[3];
 
-            imu_msg_.orientation = orientation;
-            // imu_publisher_->publish(imu_msg_);
-        }
+        //     imu_msg_.orientation = orientation;
+        //     // imu_publisher_->publish(imu_msg_);
+        // }
 
         // void accelerationCallback(const px4_msgs::msg::VehicleAcceleration::SharedPtr msg)
         // {
@@ -84,78 +85,78 @@ class ImuParse : public ParamServer
         //     imu_publisher_->publish(imu_msg_);
         // }
 
-        void sensorCombinedCallback(const px4_msgs::msg::SensorCombined::SharedPtr msg)
-        {
-            auto message = std_msgs::msg::String();
+        // void sensorCombinedCallback(const px4_msgs::msg::SensorCombined::SharedPtr msg)
+        // {
+        //     auto message = std_msgs::msg::String();
 
-            geometry_msgs::msg::Vector3 linear_acceleration;
-            std_msgs::msg::Header header;
+        //     geometry_msgs::msg::Vector3 linear_acceleration;
+        //     std_msgs::msg::Header header;
 
-            linear_acceleration.x = msg->accelerometer_m_s2[0];
-            linear_acceleration.y = msg->accelerometer_m_s2[1];
-            linear_acceleration.z = msg->accelerometer_m_s2[2];
+        //     linear_acceleration.x = msg->accelerometer_m_s2[0];
+        //     linear_acceleration.y = msg->accelerometer_m_s2[1];
+        //     linear_acceleration.z = msg->accelerometer_m_s2[2];
 
-            imu_msg_.linear_acceleration = linear_acceleration;
+        //     imu_msg_.linear_acceleration = linear_acceleration;
 
-            header.stamp = rclcpp::Clock(RCL_ROS_TIME).now();
-            header.frame_id = "odometry/imu";
+        //     header.stamp = rclcpp::Clock(RCL_ROS_TIME).now();
+        //     header.frame_id = "odometry/imu";
 
-            imu_msg_.header = header;
+        //     imu_msg_.header = header;
 
-            // message.data = std::to_string(t/1000000);
-            // test_publisher->publish(message);
+        //     // message.data = std::to_string(t/1000000);
+        //     // test_publisher->publish(message);
 
-            imu_publisher_->publish(imu_msg_);
+        //     imu_publisher_->publish(imu_msg_);
 
-        }
+        // }
 
-        void angularVelocityCallback(const px4_msgs::msg::VehicleAngularVelocity::SharedPtr msg)
-        {
-            geometry_msgs::msg::Vector3 angular_velocity;
-            angular_velocity.x = msg->xyz[0];
-            angular_velocity.y = msg->xyz[1];
-            angular_velocity.z = msg->xyz[2];
+        // void angularVelocityCallback(const px4_msgs::msg::VehicleAngularVelocity::SharedPtr msg)
+        // {
+        //     geometry_msgs::msg::Vector3 angular_velocity;
+        //     angular_velocity.x = msg->xyz[0];
+        //     angular_velocity.y = msg->xyz[1];
+        //     angular_velocity.z = msg->xyz[2];
 
-            imu_msg_.angular_velocity = angular_velocity;
-            // imu_publisher_->publish(imu_msg_);
-        }
+        //     imu_msg_.angular_velocity = angular_velocity;
+        //     // imu_publisher_->publish(imu_msg_);
+        // }
 
-        void odometryCallback(const px4_msgs::msg::VehicleOdometry::SharedPtr msg)
-        {
-            std_msgs::msg::Header header;
-            array<double, 9> orientation_covariance = {msg->orientation_variance[1], 0, 0, 0, msg->orientation_variance[2], 0, 0, 0, msg->orientation_variance[3]};
+        // void odometryCallback(const px4_msgs::msg::VehicleOdometry::SharedPtr msg)
+        // {
+        //     std_msgs::msg::Header header;
+        //     array<double, 9> orientation_covariance = {msg->orientation_variance[1], 0, 0, 0, msg->orientation_variance[2], 0, 0, 0, msg->orientation_variance[3]};
 
-            // imu_msg_.orientation_covariance = orientation_covariance;
+        //     // imu_msg_.orientation_covariance = orientation_covariance;
 
-            geometry_msgs::msg::Vector3 angular_velocity;
-            angular_velocity.x = msg->angular_velocity[0];
-            angular_velocity.y = msg->angular_velocity[1];
-            angular_velocity.z = msg->angular_velocity[2];
+        //     geometry_msgs::msg::Vector3 angular_velocity;
+        //     angular_velocity.x = msg->angular_velocity[0];
+        //     angular_velocity.y = msg->angular_velocity[1];
+        //     angular_velocity.z = msg->angular_velocity[2];
 
-            imu_msg_.angular_velocity = angular_velocity;
+        //     imu_msg_.angular_velocity = angular_velocity;
 
-            geometry_msgs::msg::Quaternion orientation;
-            orientation.x = msg->q[1];
-            orientation.y = msg->q[2];
-            orientation.z = msg->q[3];
-            orientation.w = msg->q[0];
+        //     geometry_msgs::msg::Quaternion orientation;
+        //     orientation.x = msg->q[0];
+        //     orientation.y = msg->q[1];
+        //     orientation.z = msg->q[2];
+        //     orientation.w = msg->q[3];
 
-            imu_msg_.orientation = orientation;
+        //     imu_msg_.orientation = orientation;
 
-            header.stamp = rclcpp::Clock(RCL_ROS_TIME).now();
-            header.frame_id = "odometry/imu";
+        //     header.stamp = rclcpp::Clock(RCL_ROS_TIME).now();
+        //     header.frame_id = "odometry/imu";
 
 
-            // std_msgs::msg::Header header;
-            // int t = (int) msg->timestamp;
+        //     // std_msgs::msg::Header header;
+        //     // int t = (int) msg->timestamp;
 
-            // rclcpp::Time timestamp(t/1000000, (t%((int)1000000))*1000);
-            // header.stamp = timestamp;
-            // header.frame_id = "os_imu";
-            imu_msg_.header = header;
+        //     // rclcpp::Time timestamp(t/1000000, (t%((int)1000000))*1000);
+        //     // header.stamp = timestamp;
+        //     // header.frame_id = "os_imu";
+        //     imu_msg_.header = header;
 
-            imu_publisher_->publish(imu_msg_);
-        }
+        //     imu_publisher_->publish(imu_msg_);
+        // }
 
     private:
         rclcpp::Subscription<px4_msgs::msg::VehicleAttitude>::SharedPtr attitude_subscription_;
