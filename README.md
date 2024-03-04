@@ -6,13 +6,16 @@ https://docs.px4.io/main/en/dev_setup/dev_env_linux_ubuntu.html#simulation-and-n
   ```
   cd ~/
   git clone https://github.com/PX4/PX4-Autopilot.git --recursive
-  bash ./PX4-Autopilot/Tools/setup/ubuntu.sh
+  cd PX4-Autopilot
+  git checkout bb53781
+  bash ./Tools/setup/ubuntu.sh
   ```
 Now, reboot your machine. AFTER the reboot:
 ```
 cd ~/PX4-Autopilot
 make
 ```
+You will need to type 'y' and hit enter several times.
 
 ### Checkout sim branch
   ```
@@ -40,12 +43,13 @@ colcon build
 ### Install our custom drone model
 ```
 cp -R ~/ros2_ws/src/NIST_SLAM/nist ~/PX4-Autopilot/Tools/simulation/gz/models/
+cp -R ~/ros2_ws/src/NIST_SLAM/nist_base ~/PX4-Autopilot/Tools/simulation/gz/models/
 ```
 
 # Running the Simulation
 ### Start Gazebo with PX4
 ```
-PX4_SYS_AUTOSTART=4001 PX4_GZ_MODEL=nist PX4_GZ_MODEL_POSE=0,0,2,0,0,0 ~/PX4-Autopilot/build/px4_sitl_default/bin/px4
+PX4_SYS_AUTOSTART=4001 PX4_SIM_MODEL=nist PX4_GZ_MODEL_POSE=0,0,2,0,0,0 ~/PX4-Autopilot/build/px4_sitl_default/bin/px4
 ```
 
 ### Start the Gazebo-to-ROS2 bridge
