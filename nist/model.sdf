@@ -233,7 +233,7 @@
       </sensor>
       <sensor name='lidar_sensor' type='gpu_lidar'>"
           <topic>lidar</topic>
-          <update_rate>500</update_rate>
+          <update_rate>20</update_rate>
           <ray>
 	      <scan>
 	          <horizontal>
@@ -250,8 +250,8 @@
 	          </vertical>
 	      </scan>
 	      <range>
-	          <min>1.0</min>
-	          <max>25.0</max>
+	          <min>0.5</min>
+	          <max>20.0</max>
 	          <resolution>1</resolution>
 	      </range>
           </ray>
