@@ -34,7 +34,7 @@ def generate_launch_description():
             parameters=[
                 {'frame_id': 'map'},
                 {'sensor_model.max_range': 25.0},
-                {'resolution': 0.3},                
+                {'resolution': 0.1},                
             ],
         ),
         Node(
