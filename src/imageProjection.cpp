@@ -264,6 +264,10 @@ public:
         timeScanEnd = timeScanCur + laserCloudIn->points.back().time;
 
         // check dense flag
+	// remove Nan
+        vector<int> indices;
+        pcl::removeNaNFromPointCloud(*laserCloudIn, *laserCloudIn, indices);	
+
         if (laserCloudIn->is_dense == false)
         {
             RCLCPP_ERROR(get_logger(), "Point cloud is not in dense format, please remove NaN points first!");
