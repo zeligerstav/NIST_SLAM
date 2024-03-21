@@ -33,21 +33,21 @@
     lidarMaxRange: 100.0                        # default: 1000.0, maximum lidar range to be used
 
     # IMU Settings
-    imuAccNoise: 3.9939570888238808e-03
-    imuGyrNoise: 1.5636343949698187e-03
+    imuAccNoise: 5.9939570888238808e-03
+    imuGyrNoise: 5.5636343949698187e-03
     imuAccBiasN: 6.4356659353532566e-05
     imuGyrBiasN: 3.5640318696367613e-05
 
-    imuGravity: 9.81
-    imuRPYWeight: 0.01e-2
+    imuGravity: 9.806
+    imuRPYWeight: 0.0
 
     extrinsicTrans:  [ 0.0,  0.0,  0.0 ]
-    extrinsicRot:    [1.0,  0.0,  0.0,
-                       0.0,  1.0,  0.0,
-                       0.0,  0.0, 1.0 ]
-    extrinsicRPY: [ 0.0,  0.0,  0.0,
-                   0.0,  0.0,  0.0,
-                    0.0,  0.0,  0.0 ]
+    extrinsicRot:    [0.9397,  0.0,  -0.3420,
+                      0.0,     1.0,   0.0,
+                      0.3420,  0.0,   0.9397 ]
+    extrinsicRPY: [ 0.0,  -1.0,  0.0,
+                    1.0,   0.0,  0.0,
+                    0.0,  0.0,  -1.0 ]
 
     # LOAM feature threshold
     edgeThreshold: 1.0
@@ -65,7 +65,7 @@
     rotation_tollerance: 1000.0                   # radians
 
     # CPU Params
-    numberOfCores: 4                              # number of cores for mapping optimization
+    numberOfCores: 8                              # number of cores for mapping optimization
     mappingProcessInterval: 0.15                  # seconds, regulate mapping frequency
 
     # Surrounding map
