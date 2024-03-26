@@ -295,7 +295,7 @@ public:
         }
 
         // check point time
-        if (deskewFlag == 0)
+        if (deskewFlag == 1)
         {
             deskewFlag = -1;
             for (auto &field : currentCloudMsg.fields)

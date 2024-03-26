@@ -229,11 +229,11 @@
       </sensor>
       <sensor name="imu_sensor" type="imu">
         <always_on>1</always_on>
-        <update_rate>250</update_rate>
+        <update_rate>200</update_rate>
       </sensor>
 <sensor name='lidar_sensor' type='gpu_lidar'>"
           <topic>lidar</topic>
-          <update_rate>20</update_rate>
+          <update_rate>10</update_rate>
           <ray>
 	      <scan>
 	          <horizontal>
@@ -243,7 +243,7 @@
 	              <max_angle>3.141592654</max_angle>
 	          </horizontal>
 	          <vertical>
-	              <samples>128</samples>
+	              <samples>64</samples>
 	              <resolution>1</resolution>
 	              <min_angle>-0.7853981634</min_angle>
 	              <max_angle>0.7853981634</max_angle>
@@ -251,7 +251,7 @@
 	      </scan>
 	      <range>
 	          <min>0.5</min>
-	          <max>20.0</max>
+	          <max>50.0</max>
 	          <resolution>1</resolution>
 	      </range>
           </ray>
