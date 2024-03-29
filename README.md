@@ -6,6 +6,11 @@ Do all the steps for LIO-SAM first.
 Follow the Linux instructions here:
 https://docs.qgroundcontrol.com/master/en/qgc-user-guide/getting_started/download_and_install.html
 
+Or just
+```
+wget 'https://d176tv9ibo4jno.cloudfront.net/latest/QGroundControl.AppImage'
+```
+
 ### Dependencies
   ```
   sudo apt install -y ros-humble-perception-pcl \
