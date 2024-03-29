@@ -3,10 +3,6 @@ Do all the steps for LIO-SAM first.
 # Installation
 
 ### QGroundControl
-Follow the Linux instructions here:
-https://docs.qgroundcontrol.com/master/en/qgc-user-guide/getting_started/download_and_install.html
-
-Or just
 ```
 cd ~/ros2_ws/src/NIST_SLAM
 wget 'https://d176tv9ibo4jno.cloudfront.net/latest/QGroundControl.AppImage'
