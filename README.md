@@ -12,6 +12,9 @@ Do all the steps for LIO-SAM first.
 		   ros-humble-octomap-server \
        ros-humble-octomap-rviz-plugins
   ```
+  ```
+  sudo snap install micro-xrce-dds-agent --edge
+  ```
 
 ### PX4 Toolchain 
 https://docs.px4.io/main/en/dev_setup/dev_env_linux_ubuntu.html#simulation-and-nuttx-pixhawk-targets
