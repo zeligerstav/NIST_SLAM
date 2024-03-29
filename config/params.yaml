@@ -2,9 +2,9 @@
   ros__parameters:
 
     # Topics
-    pointCloudTopic: "/lidar/points"                   # Point cloud data
-    imuTopic: "/world/default/model/nist_0/link/base_link/sensor/imu_sensor/imu"                        # IMU data
-    odomTopic: "odometry/imu"                    # IMU pre-preintegration odometry, same frequency as IMU
+    pointCloudTopic: "/ouster/points"                   # Point cloud data
+    imuTopic: "/nav/filtered_imu/data"                        # IMU data
+    odomTopic: "nav/odom_incremental"                    # IMU pre-preintegration odometry, same frequency as IMU
     gpsTopic: "odometry/gpsz"                    # GPS odometry topic from navsat, see module_navsat.launch file
 
     # Frames
@@ -24,30 +24,31 @@
     savePCDDirectory: "/Documents/NIST/pcds/"         # in your home folder, starts and ends with "/". Warning: the code deletes "LOAM" folder then recreates it. See "mapOptimization" for implementation
 
     # Sensor Settings
-    sensor: velodyne                               # lidar sensor type, either 'velodyne', 'ouster' or 'livox'
+    sensor: ouster                               # lidar sensor type, either 'velodyne', 'ouster' or 'livox'
     N_SCAN: 32                                   # number of lidar channels (i.e., Velodyne/Ouster: 16, 32, 64, 128, Livox Horizon: 6)
     Horizon_SCAN: 1024                            # lidar horizontal resolution (Velodyne:1800, Ouster:512,1024,2048, Livox Horizon: 4000)
     downsampleRate: 1                            # default: 1. Downsample your data if too many
     # points. i.e., 16 = 64 / 4, 16 = 16 / 1
     lidarMinRange: 0.25                           # default: 1.0, minimum lidar range to be used
-    lidarMaxRange: 25.0                        # default: 1000.0, maximum lidar range to be used
+    lidarMaxRange: 100.0                        # default: 1000.0, maximum lidar range to be used
 
     # IMU Settings
-    imuAccNoise: 5.9939570888238808e-09
-    imuGyrNoise: 5.5636343949698187e-09
-    imuAccBiasN: 6.4356659353532566e-09
-    imuGyrBiasN: 3.5640318696367613e-09
+    imuAccNoise: 5.9939570888238808e-03
+    imuGyrNoise: 5.5636343949698187e-03
+    imuAccBiasN: 6.4356659353532566e-05
+    imuGyrBiasN: 3.5640318696367613e-05
 
-    imuGravity: 9.8
+    imuGravity: 9.806
     imuRPYWeight: 0.01
 
-    extrinsicTrans:  [ 0.0,  0.0,  0.0 ]
-    extrinsicRot:    [1.0,  0.0,  0.0,
-                      0.0,     1.0,   0.0,
-                      0.0,  0.0,   1.0 ]
-    extrinsicRPY: [ 1.0,  0.0,  0.0,
-                    0.0,   1.0,  0.0,
-                    0.0,  0.0,  1.0 ]
+    extrinsicTrans:  [ 0.0,  0.0, 0.0 ]
+    extrinsicRot: [0.9397, 0.0,  0.3420,
+                    0.0,    1.0,  0.0,
+                   -0.3420, 0.0, 0.9397]
+
+    extrinsicRPY: [-0.9397, 0.0,  0.3420,
+                    0.0,    1.0,  0.0,
+                   -0.3420, 0.0, -0.9397]
 
     # LOAM feature threshold
     edgeThreshold: 1.0
@@ -66,7 +67,7 @@
 
     # CPU Params
     numberOfCores: 8                              # number of cores for mapping optimization
-    mappingProcessInterval: 0.15                  # seconds, regulate mapping frequency
+    mappingProcessInterval: 0.1                  # seconds, regulate mapping frequency
 
     # Surrounding map
     surroundingkeyframeAddingDistThreshold: 1.0   # meters, regulate keyframe adding threshold

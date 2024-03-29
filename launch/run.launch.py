@@ -34,7 +34,7 @@ def generate_launch_description():
             parameters=[
                 {'frame_id': 'map'},
                 {'sensor_model.max_range': 25.0},
-                {'resolution': 0.3},                
+                {'resolution': 0.2},                
             ],
         ),
         Node(
@@ -81,11 +81,11 @@ def generate_launch_description():
             parameters=[parameter_file],
             output='screen'
         ),
-        Node(
-            package='rviz2',
-            executable='rviz2',
-            name='rviz2',
-            arguments=['-d', rviz_config_file],
-            output='screen'
-        )
+        # Node(
+        #     package='rviz2',
+        #     executable='rviz2',
+        #     name='rviz2',
+        #     arguments=['-d', rviz_config_file],
+        #     output='screen'
+        # )
     ])
