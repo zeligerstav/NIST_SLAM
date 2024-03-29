@@ -4,16 +4,14 @@ Do all the steps for LIO-SAM first.
 
 ### Dependencies
   ```
-  sudo apt install ros-humble-perception-pcl \
-		   ros-humble-pcl-msgs \
-		   ros-humble-vision-opencv \
-		   ros-humble-xacro \
-		   ros-humble-octomap \
-		   ros-humble-octomap-server \
-       ros-humble-octomap-rviz-plugins
-  ```
-  ```
-  sudo snap install micro-xrce-dds-agent --edge
+  sudo apt install -y ros-humble-perception-pcl \
+		      ros-humble-pcl-msgs \
+		      ros-humble-vision-opencv \
+		      ros-humble-xacro \
+		      ros-humble-octomap \
+		      ros-humble-octomap-server \
+		      ros-humble-octomap-rviz-plugins
+		      python3-rosdep
   ```
 
 ### PX4 Toolchain 
@@ -31,25 +29,6 @@ cd ~/PX4-Autopilot
 make
 ```
 You will need to type 'y' and hit enter several times.
-
-### Checkout sim branch
-  ```
-  cd ~/ros2_ws/src/NIST_SLAM
-  git checkout sim
-  ```
-
-### Install rosdep
-```
-sudo apt install -y python3-rosdep
-```
-
-### Install PX4 Messages
-```
-cd ~/ros2_ws/src
-git clone https://github.com/PX4/px4_msgs.git
-cd ~/ros2_ws
-colcon build --packages-select px4_msgs
-```
 
 ### Install ros_gz bridge
 ```
