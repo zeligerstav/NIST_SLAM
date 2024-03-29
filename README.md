@@ -8,6 +8,7 @@ https://docs.qgroundcontrol.com/master/en/qgc-user-guide/getting_started/downloa
 
 Or just
 ```
+cd ~/ros2_ws/src/NIST_SLAM
 wget 'https://d176tv9ibo4jno.cloudfront.net/latest/QGroundControl.AppImage'
 ```
 
