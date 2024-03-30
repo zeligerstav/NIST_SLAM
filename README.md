@@ -52,7 +52,7 @@ colcon build
 ```
 cp -R ~/ros2_ws/src/NIST_SLAM/nist ~/PX4-Autopilot/Tools/simulation/gz/models/
 cp -R ~/ros2_ws/src/NIST_SLAM/nist_base ~/PX4-Autopilot/Tools/simulation/gz/models/
-cp ~/ros2_ws/src/NIST_SLAM/worlds/default.sdf ~/PX4-Autopilot/Tools/simulation/gz/worlds/default.sdf
+cp ~/ros2_ws/src/NIST_SLAM/default.sdf ~/PX4-Autopilot/Tools/simulation/gz/worlds/default.sdf
 ```
 
 # Running the Simulation
